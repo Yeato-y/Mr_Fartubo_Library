@@ -12,4 +12,7 @@ const insertSubscription = `INSERT INTO subscription (userid, plan_name, start_d
 
 const selectSubscriptions = `SELECT * FROM subscription`;
 
-export { subscription, insertSubscription, selectSubscriptions };
+const updateSubscriptionById = `UPDATE subscription SET userid = ?, plan_name = ?, start_date = ?, status = ? WHERE subscriptionid = ?`;
+
+
+export { subscription, insertSubscription, selectSubscriptions, updateSubscriptionById };

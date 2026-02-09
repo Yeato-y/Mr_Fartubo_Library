@@ -11,4 +11,11 @@ const insertChapter = `INSERT INTO chapters (bookid, title, content, order_numbe
 
 const selectChapters = `SELECT * FROM chapters`;
 
-export { chapters, insertChapter, selectChapters };
+const selectChapById = `SELECT * FROM chapters WHERE chapid = ?`;
+
+const deleteChapterById = `DELETE FROM chapters WHERE chapid= ?`;
+
+const updateChapterById = `UPDATE chapters SET title = ?, content = ?, order_number = ? WHERE chapid = ?`;
+
+
+export { chapters, insertChapter, selectChapters, selectChapById, deleteChapterById, updateChapterById };

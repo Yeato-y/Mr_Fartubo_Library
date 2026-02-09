@@ -9,8 +9,13 @@ import { createPurchaseTable } from "./Controller/purchase.controller.js";
 import { purchaseRouter } from "./Routes/purchase.route.js";
 import { createSubscriptionTable } from "./Controller/subscription.controller.js";
 import { subRouter } from "./Routes/subscription.route.js";
+//import dotenv from 'dotenv';
+//dotenv.config();
+
+
 const app = Express();
 const port = process.env.Port || 6000;
+
 
 app.use(Express.json());
 
