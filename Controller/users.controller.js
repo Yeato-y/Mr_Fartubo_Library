@@ -1,6 +1,9 @@
 import LibraryDb from "../Model/connect.js";
 import { Users, insertUser, selectUsers, selectById, updateUserById, deleteUserById } from "../Model/users.model.js";
 import { encryptPassword } from "../utils/encryptpassword.js";
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+
 
 
 const createUsersTable = LibraryDb.run(Users, (err) => {
@@ -25,6 +28,58 @@ const createNewUser = async (req, res) => {
         }
     })
 }
+
+// const loginUser = (req, res) => {
+//     const { email, password } = req.body;
+//     LibraryDb.get(`SELECT * FROM users WHERE email = ?`, [email], async (err, user) => {
+//         if (err) {
+//             console.error('Could not fetch user', err);
+//             return res.status(500).send('Error fetching user');
+//         }
+//         if (!user) {
+//             return res.status(401).send('Invalid email or password');
+//         }
+//         const isPasswordValid = await bcrypt.compare(password, user.password);
+//         if (!isPasswordValid) {
+//             return res.status(401).send('Invalid email or password');
+//         }
+//         const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, "secret_key", { expiresIn: '1h' });
+//         res.json({ token });
+//     });
+// }
+
+//Tryer of login function with jwt and bcrypt, but it is not working, so I will try to fix it later. For now, I will just return a message that the login is successful.
+
+
+const login = (req, res) => {
+    const { email, password } = req.body;
+
+    LibraryDb.get(`SELECT * FROM users WHERE email = ?`, [email], (err, user) => {
+
+        if (err) {
+            console.error('Could not fetch user', err);
+            return res.status(500).json({ message: 'Error fetching user' });
+        }
+
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        const valid = bcrypt.compareSync(password, user.password);
+
+        if (!valid) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        //  TOKEN CONTAINS USER ID + ROLE
+        const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, 'secret_key', { expiresIn: '1h' });
+        res.status(200).json({
+            message: 'Login successful',
+            token
+        });
+    });
+};
+
 
 
 const getAllUsers = (req, res) => {
@@ -68,9 +123,10 @@ const deleteById = (req, res) => {
 
 
 
-const updateUser = (req, res) => {
-    const { userid } = req.params;
+const updateUser = async (req, res) => {
+    const { id } = req.params;
     const { fullName, email, password, role } = req.body;
+    const { password: hashedPassword } = await encryptPassword(password);
 
     if (
         fullName === undefined || email === undefined || password === undefined || role === undefined
@@ -78,7 +134,7 @@ const updateUser = (req, res) => {
         return res.status(400).json({ message: 'All fields are required' });
     }
 
-    LibraryDb.run(updateUserById, [fullName, email, password, role, userid], function (err) {
+    LibraryDb.run(updateUserById, [fullName, email, hashedPassword, role, id], function (err) {
         if (err) {
             console.error('Could not update user', err);
             res.status(500).json({ error: 'Error updating user' });
@@ -94,4 +150,4 @@ const updateUser = (req, res) => {
 };
 
 
-export { createUsersTable, createNewUser, getAllUsers, updateUser, getById, deleteById };
+export { createUsersTable, createNewUser, getAllUsers, updateUser, getById, deleteById, login };

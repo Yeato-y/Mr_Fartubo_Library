@@ -65,17 +65,17 @@ const deleteBookById = (req, res) => {
 
 const updateBook = (req, res) => {
     const { bookid } = req.params;
-    const { title, description, coverimage, price, is_free } = req.body;
+    const { title, description, cover_image_url, price, is_free } = req.body;
 
     if (
-        title === undefined || description === undefined || coverimage === undefined || price === undefined || is_free === undefined
+        !title || !description || !cover_image_url || !price || !is_free
     ) {
         return res.status(400).json({ message: 'All fields are required' });
     }
 
-    LibraryDb.run(updateBookById, [title, description, coverimage, price, is_free, bookid], function (err) {
+    LibraryDb.run(updateBookById, [title, description, cover_image_url, price, is_free, bookid], function (err) {
         if (err) {
-            console.error('Could not update book', err);
+            console.error('Could not update book', err.message);
             res.status(500).json({ error: 'Error updating book' });
         }
         else if (this.changes === 0) {
